@@ -1,24 +1,41 @@
 <template>
-  <div class="titemitem">
+  <div class="titemitem" @click="titemitem_click">
     <slot name = "itme"></slot>
   </div>
 </template>
 
 <script>
+  export default {
+    props: {
+      routepath: String
+    },
+    methods: {
+      titemitem_click(){
+        if (this.routepath) {
+          this.$router.replace(this.routepath)
+        }
+      }
+    }
+  }
 </script>
 
 <style>
   .titemitem {
     padding-left: 70px;
-    /* height: 35px; */
     line-height: 35px;
   }
+
   .titemitem:hover {
-    background-color: rgba(77,132,255,.17);
+    color: #FFFFFF;
   }
+
+  .titemitem {
+    color: #A0A8B3;
+    font-size: 17px;
+  }
+
   .titemitem p{
-    font-size: 19px;
     margin: 0px;
-    color: darkgray;
   }
+
 </style>

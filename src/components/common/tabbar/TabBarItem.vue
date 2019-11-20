@@ -1,15 +1,37 @@
 <template>
   <div class = "tabbaritem">
-        <div class="not_titem">
+        <div class="not_titem" @click="not_titem_click">
           <div class = "t_icon"><slot name = "icon"></slot></div>
           <div class = "t_content"><slot name = "content"></slot></div>
-          <div class = "t_arrows"><slot name = "arrows"></slot></div>
+          <div class = "t_arrows" :class="{fold: !isFold}"><slot name = "fold_arrows"></slot></div>
+          <div class = "t_arrows" :class="{fold: isFold}"><slot name = "unfold_arrows"></slot></div>
         </div>
-        <div class = "t_item"><slot name = "titem"></slot></div>
+        <div class = "t_item" :class="{fold: isFold}"><slot name = "titem"></slot></div>
   </div>
 </template>
 
 <script>
+  export default {
+    data() {
+      return {
+        fold: "fold",
+        isFold: true,
+      }
+    },
+
+    props: {
+      routepath: String
+    },
+
+    methods: {
+      not_titem_click(event) {
+        this.isFold = !this.isFold
+        if (this.routepath) {
+          this.$router.replace(this.routepath)
+        }
+      }
+    }
+  }
 </script>
 
 <style>
@@ -22,7 +44,7 @@
   }
 
   /* 鼠标划过时改变背景色 */
-  .tabbaritem:hover {
+  .not_titem:hover {
     background-color: rgba(77,132,255,.17);
   }
 
@@ -48,11 +70,10 @@
     height: 25px;
   }
   /* 非下拉项 */
-  
+
   /* 下拉项 */
-  .t_item {
-    background-color: rgba(77,132,255,.17);
+  .fold {
+    display: none;
   }
   /* 下拉项 */
-
 </style>

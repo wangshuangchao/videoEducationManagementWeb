@@ -19,7 +19,7 @@
 
 <style>
   #tabbar {
-    width: 320.3px;
+    width: 288px;
     height: 100%;
     background-color: #262A33;
     /* 固定到浏览器左上角,不随浏览器滚动二滚动 */
@@ -40,7 +40,6 @@
     height: 75%;
     position: relative;
     top: 100px;
-    /* padding-bottom: 10px; */
     /* 隐藏滚动条 */
     overflow: hidden;
   }
