@@ -7,7 +7,7 @@ import TestUsers from 'views/test/users/testUsers.vue'
 import TestVideos from 'views/test/videos/testVideos.vue'
 import TestLiveRooms from 'views/test/liveRooms/testLiveRooms.vue'
 
-import Course from 'views/courseGrade/course/Couser.vue'
+import Course from 'views/courseGrade/course/Course.vue'
 import Grade from 'views/courseGrade/grade/Grade.vue'
 import CourseGrade from 'views/courseGrade/courseGrade/CourseGrade.vue'
 

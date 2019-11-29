@@ -25,7 +25,7 @@
     margin-left: 288px;
     margin-top: 3px;
     margin-bottom: 3px;
-    background-color: #FFFFFF;
+    background-color: #f5f5f5;
   }
 
 </style>
