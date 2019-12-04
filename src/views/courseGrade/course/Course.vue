@@ -9,8 +9,8 @@
       <Modal
         v-model="modal1"
         title="新增课程"
-        @on-ok="ok"
-        @on-cancel="cancel">
+        @on-ok="okAdd"
+        @on-cancel="cancelAdd">
         <Form :model="course" :label-width="80">
           <FormItem label="课程名">
             <Input v-model="course.courseName" placeholder="请输入新增课程名"></Input>
@@ -21,54 +21,42 @@
         </Form>
       </Modal>
 
-      <!-- <Table :loading="loading" stripe  :columns="columns1" :data="courses">
+      <Table height="620" :columns="columns" :data="courses">
+        <template slot-scope="{ row, index }" slot="courseId">
+          <Input type="text" v-model="editCourseId" v-if="editIndex === index" />
+          <span v-else>{{ row.courseId }}</span>
+        </template>
+
         <template slot-scope="{ row, index }" slot="courseName">
           <Input type="text" v-model="editCourseName" v-if="editIndex === index" />
           <span v-else>{{ row.courseName }}</span>
         </template>
-        <template slot-scope="{ row, index }" slot="operation">
+
+        <template slot-scope="{ row, index }" slot="orderCol">
+          <Input type="text" v-model="editOrderCol" v-if="editIndex === index" />
+          <span v-else>{{ row.orderCol }}</span>
+        </template>
+
+        <template slot-scope="{ row, index }" slot="action">
           <div v-if="editIndex === index">
             <Button @click="handleSave(index)">保存</Button>
             <Button @click="editIndex = -1">取消</Button>
           </div>
           <div v-else>
-            <Button @click="handleEdit(row, index)">操作</Button>
+            <Button @click="handleEdit(row, index)">修改</Button>
+            <Button @click="handleDel(row, index)">删除</Button>
           </div>
         </template>
-      </Table> -->
-      <Table :columns="columns" :data="data">
-          <template slot-scope="{ row, index }" slot="name">
-            <Input type="text" v-model="editName" v-if="editIndex === index" />
-            <span v-else>{{ row.name }}</span>
-          </template>
+      </Table>
 
-          <template slot-scope="{ row, index }" slot="age">
-            <Input type="text" v-model="editAge" v-if="editIndex === index" />
-            <span v-else>{{ row.age }}</span>
-          </template>
+      <Modal
+        v-model="modal2"
+        title="删除课程"
+        @on-ok="okDel"
+        @on-cancel="cancelDel">
+        <p>确定要删除"{{delCourseName}}"课程吗？</p>
+      </Modal>
 
-          <template slot-scope="{ row, index }" slot="birthday">
-            <Input type="text" v-model="editBirthday" v-if="editIndex === index" />
-            <span v-else>{{ getBirthday(row.birthday) }}</span>
-          </template>
-
-          <template slot-scope="{ row, index }" slot="address">
-            <Input type="text" v-model="editAddress" v-if="editIndex === index" />
-            <span v-else>{{ row.address }}</span>
-          </template>
-
-          <template slot-scope="{ row, index }" slot="action">
-            <div v-if="editIndex === index">
-              <Button @click="handleSave(index)">保存</Button>
-              <Button @click="editIndex = -1">取消</Button>
-            </div>
-            <div v-else>
-              <Button @click="handleEdit(row, index)">操作</Button>
-            </div>
-          </template>
-        </Table>
-      <br>
-      <!-- <Switch v-model="loading"></Switch> -->
     </div>
     <div>
       <p>显示12条记录，共200条数据</p>
@@ -78,98 +66,62 @@
 
 <script>
   import Title from "components/content/title/Title.vue"
-  // import Table from "components/content/table/Table.vue"
   import {request} from "network/request.js"
 
   export default {
     data() {
       return {
+        courses: [],
         loading: true,
         modal1: false,
+        modal2: false,
         course: {
           courseName: '',
           orderCol: ''
         },
-        // columns1: [
-        //   {
-        //     title: '序号',
-        //     slot: 'courseId'
-        //   },
-        //   {
-        //     title: '年级名',
-        //     key: 'courseName'
-        //   },
-        //   {
-        //     title: '优先级',
-        //     key: 'orderCol'
-        //   },
-        //   {
-        //     title: '操作',
-        //     key: 'operation'
-        //   }
-        // ],
-        // courses: [],
-        // editIndex: -1,  // 当前聚焦的输入框的行数
-        // editCourseName: '',  // 第一列输入框，当然聚焦的输入框的输入内容，与 data 分离避免重构的闪烁
+        delCourseName: '',
+        delCourse: {
+          courseId: '',
+          courseName: '',
+          orderCol: ''
+        },
+        delIndex: '',
         columns: [
-                  {
-                    title: '姓名',
-                    slot: 'name'
-                  },
-                  {
-                    title: '年龄',
-                    slot: 'age'
-                  },
-                  {
-                    title: '出生日期',
-                    slot: 'birthday'
-                  },
-                  {
-                    title: '地址',
-                    slot: 'address'
-                  },
-                  {
-                    title: '操作',
-                    slot: 'action'
-                  }
-                ],
-                data: [
-                  {
-                    name: '王小明',
-                    age: 18,
-                    birthday: '919526400000',
-                    address: '北京市朝阳区芍药居'
-                  },
-                  {
-                    name: '张小刚',
-                    age: 25,
-                    birthday: '696096000000',
-                    address: '北京市海淀区西二旗'
-                  },
-                  {
-                    name: '李小红',
-                    age: 30,
-                    birthday: '563472000000',
-                    address: '上海市浦东新区世纪大道'
-                  },
-                  {
-                    name: '周小伟',
-                    age: 26,
-                    birthday: '687024000000',
-                    address: '深圳市南山区深南大道'
-                  }
-                ],
-                editIndex: -1,  // 当前聚焦的输入框的行数
-                editName: '',  // 第一列输入框，当然聚焦的输入框的输入内容，与 data 分离避免重构的闪烁
-                editAge: '',  // 第二列输入框
-                editBirthday: '',  // 第三列输入框
-                editAddress: '',  // 第四列输入框
+          {
+            // title: '序号',
+            type: 'index'
+          },
+          {
+            title: 'id号',
+            key: 'courseId'
+          },
+          {
+            title: '课程名',
+            slot: 'courseName'
+          },
+          {
+            title: '优先级',
+            slot: 'orderCol'
+          },
+          {
+            title: '操作',
+            slot: 'action'
+          }
+        ],
+        editIndex: -1,  // 当前聚焦的输入框的行数
+        editCourseId: '',  // 第一列输入框，当然聚焦的输入框的输入内容，与 data 分离避免重构的闪烁
+        editCourseName: '',  // 第二列输入框
+        editOrderCol: '',  // 第三列输入框
       }
     },
     methods: {
-      ok () {
-        this.$Message.info('提交成功');
+      okAdd () {
+        // this.$Message.info('提交成功');
         console.log(this.course.courseName)
+        if(this.course.courseName == '' || this.course.orderCol == '') {
+          this.$Message.info('内容不能为空');
+          return
+        }
         request({
           url: "/course",
           method: 'post',
@@ -178,41 +130,91 @@
             orderCol: this.course.orderCol
           }
         }).then(res => {
-          console.log(res)
+          console.log(123)
+          console.log(res.data)
+          if(res.data.code == 1000){
+            this.$Message.info(res.data.msg);
+          }
+          if(res.data.code == 1001){
+            this.$Message.info(res.data.msg);
+            this.course.courseName = ''
+            this.course.orderCol = ''
+            this.courses.push(res.data.data)
+          }
+          // this.$Message.info('提交成功');
         })
       },
-      cancel () {
+      cancelAdd () {
         this.$Message.info('已取消');
       },
-      // handleEdit (row, index) {
-      //   this.editCourseName = row.courseName;
-      //   this.editIndex = index;
-      // },
-      // handleSave (index) {
-      //   this.data[index].courseName = this.editCourseName;
-      //   this.editIndex = -1;
-      // }
+
       handleEdit (row, index) {
-              this.editName = row.name;
-              this.editAge = row.age;
-              this.editAddress = row.address;
-              this.editBirthday = row.birthday;
-              this.editIndex = index;
-            },
-            handleSave (index) {
-              this.data[index].name = this.editName;
-              this.data[index].age = this.editAge;
-              this.data[index].birthday = this.editBirthday;
-              this.data[index].address = this.editAddress;
-              this.editIndex = -1;
-            },
-            getBirthday (birthday) {
-              const date = new Date(parseInt(birthday));
-              const year = date.getFullYear();
-              const month = date.getMonth() + 1;
-              const day = date.getDate();
-              return `${year}-${month}-${day}`;
-            }
+        // this.editCourseId = row.courseId;
+        this.editCourseName = row.courseName;
+        this.editOrderCol = row.orderCol;
+        this.editIndex = index;
+      },
+      handleSave (index) {
+        // this.courses[index].courseId = this.editCourseId;
+        if(this.courses[index].courseName == this.editCourseName &&
+            this.courses[index].orderCol == this.editOrderCol){
+            // this.editIndex = -1;
+            this.$Message.info('未做修改');
+            return
+        }
+        request({
+          url: "/course",
+          method: 'put',
+          data: {
+            courseId: this.courses[index].courseId,
+            courseName: this.editCourseName,
+            orderCol: this.editOrderCol
+          }
+        }).then(res => {
+          console.log(123)
+          console.log(res.data)
+          if(res.data.code == 2000){
+            this.$Message.info(res.data.msg);
+          }
+          if(res.data.code == 2001){
+            this.courses[index].courseName = this.editCourseName;
+            this.courses[index].orderCol = this.editOrderCol;
+            this.editIndex = -1;
+            this.$Message.info(res.data.msg);
+          }
+          // this.$Message.info('提交成功');
+        })
+      },
+      handleDel (row, index) {
+        this.modal2 = true
+        this.delCourseName = row.courseName
+        this.delCourse = row
+        this.delIndex =  index
+      },
+      okDel() {
+        request({
+          url: "/course",
+          method: 'delete',
+          data: {
+            courseId: this.delCourse.courseId,
+            courseName: this.delCourse.courseName,
+            orderCol: this.delCourse.orderCol
+          }
+        }).then(res => {
+          if(res.data.code == 3000){
+            this.$Message.info(res.data.msg);
+          }
+          if(res.data.code == 3001){
+            this.$Message.info(res.data.msg);
+            this.courses.splice(this.delIndex,1)
+            this.delCourse = {}
+            this.delIndex = ''
+          }
+        })
+      },
+      cancelDel() {
+        this.$Message.info('已取消');
+      }
     },
     components: {
       Title
@@ -221,10 +223,10 @@
       request({
         url: "/course"
       }).then(res => {
-        console.log(res.data)
         if(res) {
           this.loading = false
         }
+        this.courses = res
         this.courses = res.data
       })
     }
