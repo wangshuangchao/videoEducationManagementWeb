@@ -23,6 +23,7 @@
   @import url("assets/css/base.css");
   #marinview {
     margin-left: 288px;
+    margin-right: 20px;
     margin-top: 3px;
     margin-bottom: 3px;
     background-color: #f5f5f5;

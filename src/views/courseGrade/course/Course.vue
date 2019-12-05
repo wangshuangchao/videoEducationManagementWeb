@@ -21,7 +21,7 @@
         </Form>
       </Modal>
 
-      <Table height="620" :columns="columns" :data="courses">
+      <Table height="670" :columns="columns" :data="courses">
         <template slot-scope="{ row, index }" slot="courseId">
           <Input type="text" v-model="editCourseId" v-if="editIndex === index" />
           <span v-else>{{ row.courseId }}</span>
@@ -34,7 +34,12 @@
 
         <template slot-scope="{ row, index }" slot="orderCol">
           <Input type="text" v-model="editOrderCol" v-if="editIndex === index" />
-          <span v-else>{{ row.orderCol }}</span>
+          <span v-else>
+            {{ row.orderCol }}
+          </span>
+          <Select v-model="editOrderCol" style="width:200px" v-if="editIndex === index">
+            <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+          </Select>
         </template>
 
         <template slot-scope="{ row, index }" slot="action">
@@ -86,6 +91,33 @@
           orderCol: ''
         },
         delIndex: '',
+        cityList: [
+          {
+              value: 'New York',
+              label: 'New York'
+          },
+          {
+              value: 'London',
+              label: 'London'
+          },
+          {
+              value: 'Sydney',
+              label: 'Sydney'
+          },
+          {
+              value: 'Ottawa',
+              label: 'Ottawa'
+          },
+          {
+              value: 'Paris',
+              label: 'Paris'
+          },
+          {
+              value: 'Canberra',
+              label: 'Canberra'
+          }
+        ],
+        selModel: '',
         columns: [
           {
             // title: '序号',
@@ -162,28 +194,65 @@
             this.$Message.info('未做修改');
             return
         }
-        request({
-          url: "/course",
-          method: 'put',
-          data: {
-            courseId: this.courses[index].courseId,
-            courseName: this.editCourseName,
-            orderCol: this.editOrderCol
-          }
-        }).then(res => {
-          console.log(123)
-          console.log(res.data)
-          if(res.data.code == 2000){
-            this.$Message.info(res.data.msg);
-          }
-          if(res.data.code == 2001){
-            this.courses[index].courseName = this.editCourseName;
-            this.courses[index].orderCol = this.editOrderCol;
-            this.editIndex = -1;
-            this.$Message.info(res.data.msg);
-          }
-          // this.$Message.info('提交成功');
-        })
+        if(this.courses[index].orderCol == this.editOrderCol){
+          request({
+            url: "/course",
+            method: 'put',
+            data: {
+              courseId: this.courses[index].courseId,
+              courseName: this.editCourseName,
+              orderCol: this.editOrderCol
+            }
+          }).then(res => {
+            console.log(123)
+            console.log(res.data)
+            if(res.data.code == 2000){
+              this.$Message.info(res.data.msg);
+            }
+            if(res.data.code == 2001){
+              this.courses[index].courseName = this.editCourseName;
+              this.courses[index].orderCol = this.editOrderCol;
+              this.editIndex = -1;
+              this.$Message.info(res.data.msg);
+            }
+            // this.$Message.info('提交成功');
+          })
+        }
+
+        if(this.courses[index].orderCol != this.editOrderCol){
+          request({
+            url: "/course",
+            method: 'put',
+            data: {
+              courseId: this.courses[index].courseId,
+              courseName: this.editCourseName,
+              orderCol: this.editOrderCol
+            }
+          }).then(res => {
+            console.log(123)
+            console.log(res.data)
+            if(res.data.code == 2000){
+              this.$Message.info(res.data.msg);
+            }
+            if(res.data.code == 2001){
+              this.courses[index].courseName = this.editCourseName;
+              this.courses[index].orderCol = this.editOrderCol;
+              this.editIndex = -1;
+              this.$Message.info(res.data.msg);
+              request({
+                url: "/course"
+              }).then(res => {
+                if(res) {
+                  this.loading = false
+                }
+                this.courses = res
+                this.courses = res.data
+              })
+            }
+            // this.$Message.info('提交成功');
+          })
+        }
+
       },
       handleDel (row, index) {
         this.modal2 = true
@@ -209,6 +278,15 @@
             this.courses.splice(this.delIndex,1)
             this.delCourse = {}
             this.delIndex = ''
+            request({
+              url: "/course"
+            }).then(res => {
+              if(res) {
+                this.loading = false
+              }
+              this.courses = res
+              this.courses = res.data
+            })
           }
         })
       },
@@ -236,12 +314,10 @@
 
 <style>
   .count {
-    width: 1559.2px;
     margin-left: 20px;
-    padding-left: 10px;
-    padding-right: 20px;
+    padding: 10px;
     background-color: #FFFFFF;
-    height: 692px;
+    height: 700px;
   }
 
 </style>

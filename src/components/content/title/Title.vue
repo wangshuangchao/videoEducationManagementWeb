@@ -9,7 +9,7 @@
 
 <style>
   .title {
-    width: 1559.2px;
+    /* width: 1559.2px; */
     height: 50px;
     line-height: 50px;
     font-size: 20px;
