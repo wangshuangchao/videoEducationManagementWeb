@@ -4,9 +4,11 @@
       <p>课程年级管理>课程管理</p>
     </Title>
     <div class="count">
-      <Button type="primary" @click="modal1 = true">添加</Button>
+      <Button type="primary" @click="addCourse">添加</Button>
 
       <Modal
+        ok-text = "提交"
+        draggable
         v-model="modal1"
         title="新增课程"
         @on-ok="okAdd"
@@ -16,7 +18,10 @@
             <Input v-model="course.courseName" placeholder="请输入新增课程名"></Input>
           </FormItem>
           <FormItem label="优先级">
-            <Input v-model="course.orderCol" placeholder="请输入优先级"></Input>
+            <!-- <Input v-model="course.orderCol" placeholder="请输入优先级"></Input  :placeholder="editOrderCol"> -->
+            <Select v-model="course.orderCol"  transfer    style="width:100px;margin-left:25px;">
+              <Option v-for="item in priorities" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            </Select>
           </FormItem>
         </Form>
       </Modal>
@@ -33,13 +38,12 @@
         </template>
 
         <template slot-scope="{ row, index }" slot="orderCol">
-          <Input type="text" v-model="editOrderCol" v-if="editIndex === index" />
+          <Select v-model="editOrderCol"  transfer  :placeholder="editOrderCol"  style="width:100px;margin-left:25px;" v-if="editIndex === index">
+            <Option v-for="item in priorities" :value="item.value" :key="item.value">{{ item.label }}</Option>
+          </Select>
           <span v-else>
             {{ row.orderCol }}
           </span>
-          <Select v-model="editOrderCol" style="width:200px" v-if="editIndex === index">
-            <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-          </Select>
         </template>
 
         <template slot-scope="{ row, index }" slot="action">
@@ -91,32 +95,7 @@
           orderCol: ''
         },
         delIndex: '',
-        cityList: [
-          {
-              value: 'New York',
-              label: 'New York'
-          },
-          {
-              value: 'London',
-              label: 'London'
-          },
-          {
-              value: 'Sydney',
-              label: 'Sydney'
-          },
-          {
-              value: 'Ottawa',
-              label: 'Ottawa'
-          },
-          {
-              value: 'Paris',
-              label: 'Paris'
-          },
-          {
-              value: 'Canberra',
-              label: 'Canberra'
-          }
-        ],
+        priorities: [],
         selModel: '',
         columns: [
           {
@@ -147,8 +126,29 @@
       }
     },
     methods: {
+      addCourse () {
+        this.modal1 = true
+        request({
+          url: "/course"
+        }).then(res => {
+          if(res) {
+            this.loading = false
+          }
+          this.courses = res
+          console.log(this.courses)
+          this.courses = res.data
+          console.log(this.courses)
+          this.priorities = []
+          for(var value of this.courses){
+            this.priorities.push({value:value.orderCol,label:value.orderCol})
+          }
+          this.priorities.push({value:this.priorities[this.priorities.length - 1].value + 1,
+                                label:this.priorities[this.priorities.length - 1].label + 1})
+          console.log(this.priorities)
+
+        })
+      },
       okAdd () {
-        // this.$Message.info('提交成功');
         console.log(this.course.courseName)
         if(this.course.courseName == '' || this.course.orderCol == '') {
           this.$Message.info('内容不能为空');
@@ -173,7 +173,6 @@
             this.course.orderCol = ''
             this.courses.push(res.data.data)
           }
-          // this.$Message.info('提交成功');
         })
       },
       cancelAdd () {
@@ -181,13 +180,28 @@
       },
 
       handleEdit (row, index) {
-        // this.editCourseId = row.courseId;
+        request({
+          url: "/course"
+        }).then(res => {
+          if(res) {
+            this.loading = false
+          }
+          this.courses = res
+          console.log(this.courses)
+          this.courses = res.data
+          console.log(this.courses)
+          this.priorities = []
+          for(var value of this.courses){
+            this.priorities.push({value:value.orderCol + '',label:value.orderCol + ''})
+          }
+          console.log(this.priorities)
+
+        })
         this.editCourseName = row.courseName;
-        this.editOrderCol = row.orderCol;
+        this.editOrderCol = row.orderCol + '';
         this.editIndex = index;
       },
       handleSave (index) {
-        // this.courses[index].courseId = this.editCourseId;
         if(this.courses[index].courseName == this.editCourseName &&
             this.courses[index].orderCol == this.editOrderCol){
             // this.editIndex = -1;
@@ -215,7 +229,6 @@
               this.editIndex = -1;
               this.$Message.info(res.data.msg);
             }
-            // this.$Message.info('提交成功');
           })
         }
 
@@ -249,7 +262,6 @@
                 this.courses = res.data
               })
             }
-            // this.$Message.info('提交成功');
           })
         }
 
@@ -305,7 +317,9 @@
           this.loading = false
         }
         this.courses = res
+        console.log(this.courses)
         this.courses = res.data
+        console.log(this.courses)
       })
     }
 
