@@ -129,22 +129,19 @@
       addCourse () {
         this.modal1 = true
         request({
-          url: "/course"
+          url: "/courses"
         }).then(res => {
           if(res) {
             this.loading = false
           }
           this.courses = res
-          console.log(this.courses)
           this.courses = res.data
-          console.log(this.courses)
           this.priorities = []
           for(var value of this.courses){
             this.priorities.push({value:value.orderCol,label:value.orderCol})
           }
           this.priorities.push({value:this.priorities[this.priorities.length - 1].value + 1,
                                 label:this.priorities[this.priorities.length - 1].label + 1})
-          console.log(this.priorities)
 
         })
       },
@@ -159,19 +156,24 @@
           method: 'post',
           data: {
             courseName: this.course.courseName,
-            orderCol: this.course.orderCol
+            orderCol: this.course.orderCol,
+            lastOrderCol: this.course.lastOrderCol
           }
         }).then(res => {
-          console.log(123)
-          console.log(res.data)
-          if(res.data.code == 1000){
+          if(res.data.code == 1001 || res.data.code == 1002){
             this.$Message.info(res.data.msg);
+            return
           }
-          if(res.data.code == 1001){
-            this.$Message.info(res.data.msg);
-            this.course.courseName = ''
-            this.course.orderCol = ''
-            this.courses.push(res.data.data)
+          if(res.data.code == 1000){
+            request({
+              url: "/courses"
+            }).then(res => {
+              if(res) {
+                this.loading = false
+              }
+              this.courses = res
+              this.courses = res.data
+            })
           }
         })
       },
@@ -181,20 +183,17 @@
 
       handleEdit (row, index) {
         request({
-          url: "/course"
+          url: "/courses"
         }).then(res => {
           if(res) {
             this.loading = false
           }
           this.courses = res
-          console.log(this.courses)
           this.courses = res.data
-          console.log(this.courses)
           this.priorities = []
           for(var value of this.courses){
             this.priorities.push({value:value.orderCol + '',label:value.orderCol + ''})
           }
-          console.log(this.priorities)
 
         })
         this.editCourseName = row.courseName;
@@ -204,7 +203,6 @@
       handleSave (index) {
         if(this.courses[index].courseName == this.editCourseName &&
             this.courses[index].orderCol == this.editOrderCol){
-            // this.editIndex = -1;
             this.$Message.info('未做修改');
             return
         }
@@ -218,8 +216,6 @@
               orderCol: this.editOrderCol
             }
           }).then(res => {
-            console.log(123)
-            console.log(res.data)
             if(res.data.code == 2000){
               this.$Message.info(res.data.msg);
             }
@@ -242,8 +238,6 @@
               orderCol: this.editOrderCol
             }
           }).then(res => {
-            console.log(123)
-            console.log(res.data)
             if(res.data.code == 2000){
               this.$Message.info(res.data.msg);
             }
@@ -253,7 +247,7 @@
               this.editIndex = -1;
               this.$Message.info(res.data.msg);
               request({
-                url: "/course"
+                url: "/courses"
               }).then(res => {
                 if(res) {
                   this.loading = false
@@ -274,13 +268,8 @@
       },
       okDel() {
         request({
-          url: "/course",
+          url: "/course/" + this.delCourse.courseId,
           method: 'delete',
-          data: {
-            courseId: this.delCourse.courseId,
-            courseName: this.delCourse.courseName,
-            orderCol: this.delCourse.orderCol
-          }
         }).then(res => {
           if(res.data.code == 3000){
             this.$Message.info(res.data.msg);
@@ -291,7 +280,7 @@
             this.delCourse = {}
             this.delIndex = ''
             request({
-              url: "/course"
+              url: "/courses"
             }).then(res => {
               if(res) {
                 this.loading = false
@@ -311,15 +300,13 @@
     },
     created() {
       request({
-        url: "/course"
+        url: "/courses"
       }).then(res => {
         if(res) {
           this.loading = false
         }
         this.courses = res
-        console.log(this.courses)
         this.courses = res.data
-        console.log(this.courses)
       })
     }
 
