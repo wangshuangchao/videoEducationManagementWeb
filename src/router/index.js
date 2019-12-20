@@ -4,6 +4,7 @@ import VueRouter from 'vue-router'
 import Home from 'views/home/home.vue'
 
 import TestUsers from 'views/test/users/testUsers.vue'
+import TestUsersAdd from 'views/test/users/TestUsersAdd.vue'
 import TestVideos from 'views/test/videos/testVideos.vue'
 import TestLiveRooms from 'views/test/liveRooms/testLiveRooms.vue'
 
@@ -26,6 +27,10 @@ const routes = [
   {
     path: "/testuser",
     component: TestUsers
+  },
+  {
+    path: "/testuser/add",
+    component: TestUsersAdd
   },
   {
     path: "/testVideos",

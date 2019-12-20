@@ -27,12 +27,20 @@
 
       <div id="gradeList">
         <Button type="primary" @click="relation">添加关联年级</Button>
-        <Table :columns="columns" :data="grades">
+        <Table border :columns="columns" :data="courseGrades">
           <template slot-scope="{ row, index }" slot="action">
-            <Button @click="handleDel(row, index)">删除</Button>
+            <Button @click="delRelation(row, index)">删除</Button>
           </template>
         </Table>
       </div>
+
+      <Modal
+        v-model="modal2"
+        title="删除关联关系"
+        @on-ok="okDel"
+        @on-cancel="cancelDel">
+        <p>确定要删除"{{course.courseName}}"和"{{delCourseGrade.gradeName}}"关联吗？</p>
+      </Modal>
     </div>
   </div>
 </template>
@@ -46,20 +54,23 @@
       return {
         selected: -1,
         modal1: false,
+        modal2: false,
         course: {},
         courses: [],
+        delCourseGrade: {},
         grade: {
           gradeId: '1'
         },
-        grades: [],
+        courseGrades: [],
         allGrades: [],
         columns: [
           {
             type: 'index'
           },
           {
-            title: 'id号',
-            key: 'gradeId'
+            title: '优先级',
+            key: 'orderCol',
+            sortable: true
           },
           {
             title: '年级名',
@@ -81,7 +92,7 @@
           url: "/grades"
         }).then(res => {
           this.allGrades = res.data
-          for(var item of this.grades){
+          for(var item of this.courseGrades){
             for(var item2 of this.allGrades){
               if(item.gradeId == item2.gradeId){
                 this.allGrades.splice(this.allGrades.indexOf(item2),1)
@@ -92,8 +103,6 @@
         })
       },
       okRelation() {
-        console.log(this.grade.gradeId)
-        console.log(this.course.courseId)
         request({
             url: "/courseGrade",
             method: 'post',
@@ -108,20 +117,52 @@
             }
             if(res.data.code == 3000){
               this.$Message.info(res.data.msg);
-              // request({
-              //   url: "/courseGrades/" + course.courseId
-              // }).then(res => {
-              //   this.grades = []
-              //   if(res) {
-              //     this.loading = false
-              //   }
-              //   this.grades = res.data
-              // })
+              // this.grades.push(res.data.data)
+              request({
+                url: "/courseGrades/" + this.course.courseId
+              }).then(res => {
+                this.courseGrades = []
+                if(res) {
+                  this.loading = false
+                }
+                this.courseGrades = res.data
+              })
             }
           })
       },
       cancelRelation(){
-
+        this.$Message.info('已取消');
+      },
+      delRelation(row, index) {
+        this.modal2 = true
+        this.delCourseGrade = row
+      },
+      okDel(){
+        request({
+            url: "/courseGrade/" + this.delCourseGrade.courseGradeId,
+            method: 'delete',
+          }).then(res => {
+            if(res.data.code == 4001){
+              this.$Message.info(res.data.msg);
+              return
+            }
+            if(res.data.code == 4000){
+              this.$Message.info(res.data.msg);
+              // this.grades.push(res.data.data)
+              request({
+                url: "/courseGrades/" + this.course.courseId
+              }).then(res => {
+                this.courseGrades = []
+                if(res) {
+                  this.loading = false
+                }
+                this.courseGrades = res.data
+              })
+            }
+          })
+      },
+      cancelDel() {
+        this.$Message.info('已取消');
       },
       showGrades(course, index) {
         this.course = course
@@ -129,11 +170,11 @@
         request({
           url: "/courseGrades/" + course.courseId
         }).then(res => {
-          this.grades = []
+          this.courseGrades = []
           if(res) {
             this.loading = false
           }
-          this.grades = res.data
+          this.courseGrades = res.data
         })
       }
 
@@ -150,13 +191,13 @@
         request({
           url: "/courseGrades/" + this.courses[0].courseId
         }).then(res => {
-          this.grades = []
+          this.courseGrades = []
           this.selected = 0
           this.course = this.courses[0]
           if(res) {
             this.loading = false
           }
-          this.grades = res.data
+          this.courseGrades = res.data
         })
       })
     }

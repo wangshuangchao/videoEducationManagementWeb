@@ -81,7 +81,6 @@
     data() {
       return {
         courses: [],
-        loading: true,
         modal1: false,
         modal2: false,
         course: {
@@ -99,7 +98,6 @@
         selModel: '',
         columns: [
           {
-            // title: '序号',
             type: 'index'
           },
           {
@@ -127,14 +125,12 @@
     },
     methods: {
       addCourse () {
+        // 显示添加对话框
         this.modal1 = true
+        // 添加对话框中的优先级
         request({
           url: "/courses"
         }).then(res => {
-          if(res) {
-            this.loading = false
-          }
-          this.courses = res
           this.courses = res.data
           this.priorities = []
           for(var value of this.courses){
