@@ -3,7 +3,7 @@
     <Title>
       <p>测试数据管理>测试用户管理>添加用户</p>
     </Title>
-    <Form ref="formCustom" :model="formCustom" :rules="ruleCustom"
+    <Form ref="formValidate" :model="formValidate" :rules="ruleCustom"
      :label-width="80">
      <!-- ref="formValidate" :model="formValidate" :rules="ruleValidate" -->
       <FormItem label="头像">
@@ -14,10 +14,10 @@
       <FormItem label="用户名" prop="name">
         <Input v-model="formValidate.name" placeholder="Enter your name"></Input>
       </FormItem>
-      <FormItem label="Password" prop="passwd">
+      <FormItem label="密码" prop="passwd">
         <Input type="password" v-model="formCustom.passwd"></Input>
       </FormItem>
-      <FormItem label="Confirm" prop="passwdCheck">
+      <FormItem label="确认密码" prop="passwdCheck">
         <Input type="password" v-model="formCustom.passwdCheck"></Input>
       </FormItem>
       <FormItem>
