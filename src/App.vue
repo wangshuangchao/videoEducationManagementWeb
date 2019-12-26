@@ -15,7 +15,7 @@
     components: {
       MainTabBar,
       Heading
-    },
+    }
   }
 
 </script>

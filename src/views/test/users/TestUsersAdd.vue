@@ -3,38 +3,32 @@
     <Title>
       <p>测试数据管理>测试用户管理>添加用户</p>
     </Title>
-    <Form ref="formValidate" :model="formValidate" :rules="ruleCustom"
-     :label-width="80">
-     <!-- ref="formValidate" :model="formValidate" :rules="ruleValidate" -->
-      <FormItem label="头像">
-        <Upload action="http://localhost:8081/headPortrait">
-          <Button icon="ios-cloud-upload-outline">上传</Button>
-        </Upload>
+
+    <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
+      <FormItem label="用户名" prop="userName">
+        <Input v-model="formValidate.userName" placeholder="请输入用户名"></Input>
       </FormItem>
-      <FormItem label="用户名" prop="name">
-        <Input v-model="formValidate.name" placeholder="Enter your name"></Input>
-      </FormItem>
+
       <FormItem label="密码" prop="passwd">
-        <Input type="password" v-model="formCustom.passwd"></Input>
+        <Input type="password" v-model="formValidate.passwd" placeholder="请输入密码"></Input>
       </FormItem>
       <FormItem label="确认密码" prop="passwdCheck">
-        <Input type="password" v-model="formCustom.passwdCheck"></Input>
+        <Input type="password" v-model="formValidate.passwdCheck" placeholder="再次输入密码"></Input>
       </FormItem>
-      <FormItem>
-        <Button type="primary" @click="handleSubmit('formCustom')">Submit</Button>
-        <Button @click="handleReset('formCustom')" style="margin-left: 8px">Reset</Button>
+
+      <FormItem label="昵称" prop="nick">
+        <Input v-model="formValidate.nick" placeholder="请输入昵称"></Input>
       </FormItem>
-      <FormItem label="E-mail" prop="mail">
-        <Input v-model="formValidate.mail" placeholder="Enter your e-mail"></Input>
+
+      <FormItem label="手机号" prop="cellPhone">
+        <Input v-model="formValidate.cellPhone" placeholder="请输入手机号"></Input>
       </FormItem>
-      <FormItem label="City" prop="city">
-        <Select v-model="formValidate.city" placeholder="Select your city">
-          <Option value="beijing">New York</Option>
-          <Option value="shanghai">London</Option>
-          <Option value="shenzhen">Sydney</Option>
-        </Select>
+
+      <FormItem label="年龄" prop="age">
+        <Input type="text" v-model="formValidate.age" number></Input>
       </FormItem>
-      <FormItem label="Date">
+
+      <FormItem label="生日">
         <Row>
           <Col span="11">
           <FormItem prop="date">
@@ -49,6 +43,18 @@
           </Col>
         </Row>
       </FormItem>
+
+      <FormItem label="E-mail" prop="mail">
+        <Input v-model="formValidate.mail" placeholder="Enter your e-mail"></Input>
+      </FormItem>
+      <FormItem label="City" prop="city">
+        <Select v-model="formValidate.city" placeholder="Select your city">
+          <Option value="beijing">New York</Option>
+          <Option value="shanghai">London</Option>
+          <Option value="shenzhen">Sydney</Option>
+        </Select>
+      </FormItem>
+      
       <FormItem label="Gender" prop="gender">
         <RadioGroup v-model="formValidate.gender">
           <Radio label="male">Male</Radio>
@@ -66,6 +72,7 @@
       <FormItem label="Desc" prop="desc">
         <Input v-model="formValidate.desc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="Enter something..."></Input>
       </FormItem>
+
       <FormItem>
         <Button type="primary" @click="handleSubmit('formValidate')">Submit</Button>
         <Button @click="handleReset('formValidate')" style="margin-left: 8px">Reset</Button>
@@ -79,13 +86,14 @@
 
   export default {
     data() {
+
       const validatePass = (rule, value, callback) => {
         if (value === '') {
           callback(new Error('Please enter your password'));
         } else {
-          if (this.formCustom.passwdCheck !== '') {
+          if (this.formValidate.passwdCheck !== '') {
             // 对第二个密码框单独验证
-            this.$refs.formCustom.validateField('passwdCheck');
+            this.$refs.formValidate.validateField('passwdCheck');
           }
           callback();
         }
@@ -93,29 +101,38 @@
       const validatePassCheck = (rule, value, callback) => {
         if (value === '') {
           callback(new Error('Please enter your password again'));
-        } else if (value !== this.formCustom.passwd) {
+        } else if (value !== this.formValidate.passwd) {
           callback(new Error('The two input passwords do not match!'));
         } else {
           callback();
         }
       };
+      const validateAge = (rule, value, callback) => {
+        if (!value) {
+          return callback(new Error('Age cannot be empty'));
+        }
+        // 模拟异步验证效果
+        setTimeout(() => {
+          if (!Number.isInteger(value)) {
+            callback(new Error('Please enter a numeric value'));
+          } else {
+            if (value < 18) {
+              callback(new Error('Must be over 18 years of age'));
+            } else {
+              callback();
+            }
+          }
+        }, 1000);
+      };
+
       return {
-        formCustom: {
+        formValidate: {
+          userName: '',
           passwd: '',
           passwdCheck: '',
-        },
-        ruleCustom: {
-          passwd: [{
-            validator: validatePass,
-            trigger: 'blur'
-          }],
-          passwdCheck: [{
-            validator: validatePassCheck,
-            trigger: 'blur'
-          }]
-        },
-        formValidate: {
-          name: '',
+          nick: '',
+          cellPhone: '',
+          age: '',
           mail: '',
           city: '',
           gender: '',
@@ -123,13 +140,49 @@
           date: '',
           time: '',
           desc: ''
+
         },
+
         ruleValidate: {
-          name: [{
+          userName: [{
             required: true,
-            message: 'The name cannot be empty',
+            message: '用户名不能为空',
             trigger: 'blur'
           }],
+
+          passwd: [{
+              required: true,
+              message: '密码不能为空',
+              trigger: 'blur'
+            },
+            {
+              validator: validatePass,
+              trigger: 'blur'
+            }
+          ],
+          passwdCheck: [{
+              required: true,
+              message: '请确认密码',
+              trigger: 'blur'
+            },
+            {
+              validator: validatePassCheck,
+              trigger: 'blur'
+            }
+          ],
+
+          nick: [{
+            required: true,
+            message: '昵称不能为空',
+            trigger: 'blur'
+          }],
+
+          cellPhone: [{
+            required: true,
+            message: '手机号不能为空',
+            trigger: 'blur'
+          }],
+
           mail: [{
               required: true,
               message: 'Mailbox cannot be empty',
@@ -188,7 +241,12 @@
               message: 'Introduce no less than 20 words',
               trigger: 'blur'
             }
-          ]
+          ],
+
+          age: [{
+            validator: validateAge,
+            trigger: 'blur'
+          }]
         }
       }
     },
@@ -204,22 +262,12 @@
       },
       handleReset(name) {
         this.$refs[name].resetFields();
-      },
-      handleSubmit(name) {
-        this.$refs[name].validate((valid) => {
-          if (valid) {
-            this.$Message.success('Success!');
-          } else {
-            this.$Message.error('Fail!');
-          }
-        })
-      },
-      handleReset(name) {
-        this.$refs[name].resetFields();
       }
     },
     components: {
       Title
+    },
+    created() {
     }
   }
 </script>
